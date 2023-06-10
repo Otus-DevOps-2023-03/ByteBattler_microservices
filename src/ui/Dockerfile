@@ -1,11 +1,17 @@
-FROM python:3.6.0-alpine
+FROM ruby:2.2
+RUN apt-get update -qq && apt-get install -y build-essential
 
-WORKDIR /app
-ADD . /app
+ENV APP_HOME /app
+RUN mkdir $APP_HOME
 
-RUN apk --no-cache --update add build-base && pip install -r /app/requirements.txt && apk del build-base
+WORKDIR $APP_HOME
+ADD Gemfile* $APP_HOME/
+RUN bundle install
+ADD . $APP_HOME
 
-ENV POST_DATABASE_HOST post_db
-ENV POST_DATABASE posts
+ENV POST_SERVICE_HOST post
+ENV POST_SERVICE_PORT 5000
+ENV COMMENT_SERVICE_HOST comment
+ENV COMMENT_SERVICE_PORT 9292
 
-ENTRYPOINT ["python3", "post_app.py"]
+CMD ["puma"]
