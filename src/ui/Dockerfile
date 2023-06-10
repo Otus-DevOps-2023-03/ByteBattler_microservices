@@ -1,5 +1,5 @@
-FROM ruby:2.2
-RUN apt-get update -qq && apt-get install -y build-essential
+FROM ubuntu:16.04
+RUN apt update && apt install -y ruby-full ruby-dev build-essential && gem install bundler -v 1.17.2 && gem install bundler -v 2.2
 
 ENV APP_HOME /app
 RUN mkdir $APP_HOME
