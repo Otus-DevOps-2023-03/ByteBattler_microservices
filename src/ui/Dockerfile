@@ -1,17 +1,11 @@
-FROM ubuntu:20.04
-RUN apt update && apt install -y ruby-full ruby-dev build-essential && gem install bundler -v 1.17.2 && gem install bundler -v 2.4
+FROM python:3.6.0-alpine
 
-ENV APP_HOME /app
-RUN mkdir $APP_HOME
+WORKDIR /app
+ADD . /app
 
-WORKDIR $APP_HOME
-ADD Gemfile* $APP_HOME/
-RUN bundle install
-ADD . $APP_HOME
+RUN apk --no-cache --update add build-base && pip install -r /app/requirements.txt && apk del build-base
 
-ENV POST_SERVICE_HOST post
-ENV POST_SERVICE_PORT 5000
-ENV COMMENT_SERVICE_HOST comment
-ENV COMMENT_SERVICE_PORT 9292
+ENV POST_DATABASE_HOST post_db
+ENV POST_DATABASE posts
 
-CMD ["puma"]
+ENTRYPOINT ["python3", "post_app.py"]
