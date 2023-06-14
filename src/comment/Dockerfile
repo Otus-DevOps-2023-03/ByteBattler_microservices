@@ -1,3 +1,4 @@
+#comment
 FROM ruby:2.4-alpine3.7
 
 RUN apk --update add build-base

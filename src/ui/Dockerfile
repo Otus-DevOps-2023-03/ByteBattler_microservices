@@ -1,3 +1,4 @@
+#ui
 FROM ubuntu:20.04
 RUN apt update \
 && apt install -y ruby-full ruby-dev build-essential \
