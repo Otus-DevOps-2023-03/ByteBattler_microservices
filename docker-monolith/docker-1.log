@@ -1,0 +1,4 @@
+REPOSITORY             TAG       IMAGE ID       CREATED         SIZE
+alex/ubuntu-tmp-file   latest    2e0fc584d174   9 seconds ago   63.2MB
+ubuntu                 18.04     f9a80a55f492   7 days ago      63.2MB
+hello-world            latest    9c7a54a9a43c   4 weeks ago     13.3kB
