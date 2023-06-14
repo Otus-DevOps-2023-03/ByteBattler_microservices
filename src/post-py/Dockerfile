@@ -1,10 +1,10 @@
 #post-py
-FROM python:3.10-alpine
+FROM python:3.10
 
 WORKDIR /app
 COPY . /app
 
-RUN apk --no-cache --update add build-base && pip install -r /app/requirements.txt && apk del build-base
+RUN pip install -r /app/requirements.txt
 
 ENV POST_DATABASE_HOST post_db
 ENV POST_DATABASE posts
