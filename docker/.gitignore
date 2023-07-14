@@ -5,4 +5,4 @@ prometheus/
 *.pyc
 
 #docker compose env
-.env
+*.env
