@@ -17,7 +17,7 @@ services:
     build:
       context: ../src/ui/
       dockerfile: Dockerfile.0
-    image: '${USERNAME}/ui:${APP_TAG}'
+    image: '${USER_NAME}/ui:${V}'
     ports:
       - '${APP_PORT}:9292/tcp'
     networks:
@@ -32,7 +32,7 @@ services:
     environment:
       - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     build: ../src/post-py/
-    image: '${USERNAME}/post:${APP_TAG}'
+    image: '${USER_NAME}/post:${V}'
     networks:
       - backend
       - frontend
@@ -48,13 +48,13 @@ services:
     build:
       context: ../src/comment/
       dockerfile: Dockerfile.0
-    image: '${USERNAME}/comment:${APP_TAG}'
+    image: '${USER_NAME}/comment:${V}'
     networks:
       - backend
       - frontend
   prometheus:
     restart: always
-    image: '${USERNAME}/prometheus:latest'
+    image: '${USER_NAME}/prometheus:latest'
     build: ../monitoring/prometheus/
     ports:
       - '9090:9090'
