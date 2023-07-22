@@ -27,3 +27,7 @@ https://hub.docker.com/r/atatarintsev/comment
 https://hub.docker.com/r/atatarintsev/ui
 
 Развёрнут мониторинг микросервисов на основе Prometheus и Node Exporter
+
+## logging-1
+
+Настроен мониторинг микросервисов с помозщью стэка EFK, Zipkin
