@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile.0
     image: '${USER_NAME}/ui:${V}'
     ports:
-      - '${APP_PORT}:9292/tcp'
+      - '${PORT}:9292/tcp'
     networks:
       - frontend
     logging:
