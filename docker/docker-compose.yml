@@ -24,8 +24,6 @@ services:
   post:
     image: ${USER_NAME}/post:${V}
     environment:
-      - POST_DATABASE_HOST=post_db
-      - POST_DATABASE=posts
       - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     depends_on:
       - post_db
