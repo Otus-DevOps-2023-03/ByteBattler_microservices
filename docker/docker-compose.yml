@@ -1,75 +1,67 @@
----
-
 version: '3.3'
-
 services:
   post_db:
-    restart: always
     image: mongo:3.2
     volumes:
       - post_db:/data/db
     networks:
-      - backend
+      - back_net
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
   ui:
-    restart: always
-    environment:
-      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
-    build:
-      context: ../src/ui/
-      dockerfile: Dockerfile.0
-    image: '${USER_NAME}/ui:${V}'
+    build: ../src/ui
+    image: ${USER_NAME}/ui:${UI_VERSION}
     ports:
-      - '${PORT}:9292/tcp'
+      - ${PORT}:${PORT}/tcp
     networks:
-      - frontend
+      - front_net
     logging:
-      driver: fluentd
+      driver: "fluentd"
       options:
-        fluentd-address: 'localhost:24224'
+        fluentd-async-connect: 'true'
+        fluentd-address: localhost:24224
         tag: service.ui
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
   post:
-    restart: always
-    environment:
-      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
-    build: ../src/post-py/
-    image: '${USER_NAME}/post:${V}'
+    build: ../src/post-py
+    image: ${USER_NAME}/post:${V}
     networks:
-      - backend
-      - frontend
+      - back_net
+      - front_net
+    depends_on:
+      - post_db
     logging:
-      driver: fluentd
+      driver: "fluentd"
       options:
-        fluentd-address: 'localhost:24224'
+        fluentd-async-connect: 'true'
+        fluentd-address: localhost:24224
         tag: service.post
-  comment:
-    restart: always
     environment:
       - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
-    build:
-      context: ../src/comment/
-      dockerfile: Dockerfile.0
-    image: '${USER_NAME}/comment:${V}'
+  comment:
+    build: ../src/comment
+    image: ${USER_NAME}/comment:${COMMENT_VERSION}
     networks:
-      - backend
-      - frontend
+      - back_net
+      - front_net
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
   prometheus:
-    restart: always
-    image: '${USER_NAME}/prometheus:latest'
-    build: ../monitoring/prometheus/
+    build: ../monitoring/prometheus
+    image: ${USER_NAME}/prometheus
     ports:
       - '9090:9090'
     volumes:
       - prometheus_data:/prometheus
-    command:  # Передаем доп параметры в командной строке
+    command: # Передаем доп параметры в командной строке
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention=1d'  # Задаем время хранения метрик в 1 день
+      - '--storage.tsdb.retention=1d' # Задаем время хранения метрик в 1 день
     networks:
-      - backend
-      - frontend
-      - monitoring
+      - back_net
+      - front_net
   node-exporter:
-    restart: always
     image: prom/node-exporter:v0.15.2
     user: root
     volumes:
@@ -81,35 +73,13 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
     networks:
-      - monitoring
-  mongodb-exporter:
-    restart: always
-    image: percona/mongodb_exporter:0.30
-    command:
-      - '--mongodb.uri=mongodb://post_db:27017'
-    networks:
-      - backend
-  blackbox-exporter:
-    restart: always
-    image: 'prom/blackbox-exporter:v0.19.0'
-    networks:
-      - backend
-      - frontend
+      - back_net
+      - front_net
 
 volumes:
-  post_db: {}
-  prometheus_data: {}
+  post_db:
+  prometheus_data:
 
 networks:
-  frontend:
-    ipam:
-      config:
-        - subnet: 10.0.1.0/24
-  backend:
-    ipam:
-      config:
-        - subnet: 10.0.2.0/24
-  monitoring:
-    ipam:
-      config:
-        - subnet: 10.0.3.0/24
+  back_net:
+  front_net:
