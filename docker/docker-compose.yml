@@ -1,63 +1,43 @@
+---
 version: '3.3'
-
 services:
-  db:
-    image: mongo:${MONGO_VER}
+  post_db:
+    image: mongo:${MONGODVER}
     volumes:
       - post_db:/data/db
     networks:
-      back_net:
-        aliases:
-          - post_db
-          - comment_db
+      - back_net
   ui:
-    image: ${USERNAME}/ui:${UI_VER}
-    environment:
-      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+    build: ../src/ui
+    image: ${DOCKHUBUSER}/ui:${APPUIVER}
     ports:
-      - ${APP_HOST_PORT}:9292/tcp
+      - ${APPSRCPORT}:${APPDSTPORT}/tcp
     networks:
-      - front_net
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: service.ui
-
+      - back_net
   post:
-    image: ${USERNAME}/post:${POST_VER}
-    environment:
-      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+    build: ../src/post-py
+    image: ${DOCKHUBUSER}/post:${APPPOSTVER}
     networks:
       - back_net
-      - front_net
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: service.post
-
   comment:
-    image: ${USERNAME}/comment:${COMMENT_VER}
-    environment:
-      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+    build: ../src/comment
+    image: ${DOCKHUBUSER}/comment:${APPCMMNTVER}
     networks:
       - back_net
-      - front_net
 
   prometheus:
-    image: ${USERNAME}/prometheus
+    image: ${DOCKHUBUSER}/prometheus
     ports:
-      - 9090:9090
+      - '9090:9090'
     volumes:
+      # - ../monitoring/prometheus/:/etc/prometheus/
       - prometheus_data:/prometheus
+    command: # Передаем доп параметры в командной строке
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=1d' # Задаем время хранения метрик в 1 день
     networks:
       - back_net
-      - front_net
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.path=/prometheus
-      - --storage.tsdb.retention=1d
 
   node-exporter:
     image: prom/node-exporter:v0.15.2
@@ -66,24 +46,14 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
-    networks:
-      - back_net
     command:
-      - --path.procfs=/host/proc
-      - --path.sysfs=/host/sys
-      - --collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"
-
-  mongodb-exporter:
-    image: ${USERNAME}/mongodb-exporter
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+    ports:
+      - '9100:9100'
     networks:
       - back_net
-    environment:
-      - MONGODB_URI=mongodb://db:27017
-
-  blackbox-exporter:
-    image: ${USERNAME}/blackbox-exporter
-    networks:
-      - front_net
 
 volumes:
   post_db:
@@ -91,4 +61,4 @@ volumes:
 
 networks:
   back_net:
-  front_net:
+  # front_net:
