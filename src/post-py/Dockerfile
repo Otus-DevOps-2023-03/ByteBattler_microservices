@@ -1,23 +1,15 @@
-FROM ruby:2.2-slim
-LABEL name="Otus Reddit ui service"
-LABEL version="1.1"
-ARG build_deps="make gcc"
-ENV APP_HOME "/srv/app/"
-ENV POST_SERVICE_HOST post
-ENV POST_SERVICE_PORT 5000
-ENV COMMENT_SERVICE_HOST comment
-ENV COMMENT_SERVICE_PORT 9292
+FROM python:3.6.0-alpine
 
-CMD ["puma"]
-WORKDIR $APP_HOME
+WORKDIR /app
 
-COPY . $APP_HOME/
+COPY requirements.txt /app
+RUN apk --no-cache --update add build-base=0.4-r1 \
+    && pip install --no-cache-dir -r /app/requirements.txt \
+    && apk del build-base
 
-# hadolint ignore=DL3008
-RUN \
-  apt-get update && \
-  apt-get install --no-install-recommends --yes $build_deps && \
-  bundle install && \
-  apt-get remove --purge --auto-remove --yes $build_deps && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+COPY . /app
+
+ENV POST_DATABASE_HOST post_db
+ENV POST_DATABASE posts
+
+CMD ["python3", "post_app.py"]

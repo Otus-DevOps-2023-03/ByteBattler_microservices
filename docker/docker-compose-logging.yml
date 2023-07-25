@@ -1,19 +1,21 @@
----
-
 version: '3'
-
 services:
+  zipkin:
+    image: openzipkin/zipkin:2.21.0
+    ports:
+      - "9411:9411"
+    networks:
+      - front_net
+      - back_net
+
   fluentd:
-    restart: always
     image: ${USERNAME}/fluentd
-    build: ../logging/fluentd/
     ports:
       - "24224:24224"
       - "24224:24224/udp"
 
   elasticsearch:
-    restart: always
-    image: elasticsearch:7.4.0
+    image: elasticsearch:7.13.1
     environment:
       - ELASTIC_CLUSTER=false
       - CLUSTER_NODE_MASTER=true
@@ -25,20 +27,10 @@ services:
       - "9200:9200"
 
   kibana:
-    restart: always
-    image: kibana:7.4.0
+    image: kibana:7.13.1
     ports:
       - "5601:5601"
 
-  zipkin:
-    restart: always
-    image: openzipkin/zipkin:2.21.0
-    ports:
-      - "9411:9411"
-    networks:
-      - frontend
-      - backend
-
 networks:
-  frontend: {}
-  backend: {}
+  back_net:
+  front_net:
