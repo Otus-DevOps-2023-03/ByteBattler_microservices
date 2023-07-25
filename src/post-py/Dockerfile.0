@@ -18,3 +18,4 @@ RUN \
   apk --no-cache --update add $build_deps && \
   bundle install && \
   apk del $build_deps
+  
