@@ -1,8 +1,7 @@
-FROM ubuntu:20.04
-RUN apt update \
-    && apt install -y ruby-full ruby-dev build-essential \
-    && gem install bundler -v 1.17.2 \
-    && gem install bundler -v 2.4
+FROM alpine:3.16
+RUN apk --no-cache update && \
+    apk add ruby ruby-dev build-base \
+    && gem install bundler
 
 ENV APP_HOME /app
 RUN mkdir $APP_HOME
