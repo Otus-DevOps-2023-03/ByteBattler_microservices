@@ -10,6 +10,6 @@ spec:
   csi:
     driver: disk-csi-driver.mks.ycloud.io
     fsType: ext4
-    volumeHandle: yummrjklclv35nbsopi
+    volumeHandle: fhmmrfuigclv74nbsuvp
   storageClassName: "yc-network-hdd"
   
