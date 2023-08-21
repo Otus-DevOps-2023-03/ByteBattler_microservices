@@ -24,11 +24,18 @@ spec:
         post-db: "true"
     spec:
       containers:
-      - image: mongo:3.2
+      - image: mongo:5.0
         name: mongo
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
         volumeMounts:
         - name: mongo-persistent-storage
           mountPath: /data/db
       volumes:
       - name: mongo-persistent-storage
-        emptyDir: {}
+      # name: mongo-gce-pd-storage
+        persistentVolumeClaim:
+          claimName: mongo-pvc
+          
